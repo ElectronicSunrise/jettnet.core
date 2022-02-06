@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Net.Mail;
 
-namespace jettnet.logging
+namespace jettnet.core
 {
     public enum LogLevel
     {
