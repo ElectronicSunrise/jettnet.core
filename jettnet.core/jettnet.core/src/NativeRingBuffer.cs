@@ -7,7 +7,7 @@ namespace jettnet.core
     /// <summary>
     /// Single producer, single consumer, FIFO thread safe ring buffer
     /// </summary>
-    public unsafe class NativeRingBuffer 
+    public unsafe class NativeRingBuffer : IDisposable
     {
 
         private SpinLock _spinLock;
@@ -19,6 +19,8 @@ namespace jettnet.core
 
         private int _elementSize;
         private int _elementCount;
+
+        private bool _disposedValue;
 
         public NativeRingBuffer(int elementSize, int elementCount) 
         {
@@ -220,6 +222,35 @@ namespace jettnet.core
             while (readPosition == null);
 
             return readPosition;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    // dispose managed state (managed objects)
+                }
+
+                // free unmanaged resources (unmanaged objects) and override finalizer and set large fields to null
+                Marshal.FreeHGlobal((IntPtr) _buffer);
+
+                _disposedValue = true;
+            }
+        }
+
+        ~NativeRingBuffer()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
