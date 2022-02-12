@@ -14,8 +14,10 @@ namespace jettnet.core
         private readonly Action<object> _error   = Console.Error.WriteLine;
         private readonly Action<object> _info    = Console.WriteLine;
         private readonly Action<object> _warning = Console.WriteLine;
-        
+
         private readonly string _prefix;
+
+        private readonly object _lock = new object();
 
         public Logger(string prefix = "JETTNET")
         {
@@ -33,47 +35,24 @@ namespace jettnet.core
         public void Log(object msg, LogLevel logLevel = LogLevel.Info)
         {
             string message = $"{_prefix} {msg}";
-            
-#if UNITY_64
-            switch (logLevel)
+
+            lock (_lock)
             {
-                case LogLevel.Info:
-                    UnityEngine.Debug.Log(message);
-                    break;
-                case LogLevel.Warning:
-                    UnityEngine.Debug.LogWarning(message);
-                    break;
-                case LogLevel.Error:
-                    UnityEngine.Debug.LogError(message);
-                    break;
-            }
-            
-            return;
-#else
-            switch (logLevel)
-            {
-                case LogLevel.Info:
-                    
-                    lock (_info)
+                switch (logLevel)
+                {
+                    case LogLevel.Info:
                         _info?.Invoke(message);
-                    
-                    break;
-                case LogLevel.Warning:
-                    
-                    lock (_warning)
+                        break;
+                    case LogLevel.Warning:
                         _warning?.Invoke(message);
-                    
-                    break;
-                case LogLevel.Error:
-                    
-                    lock (_error)
+                        break;
+                    case LogLevel.Error:
                         _error?.Invoke(message);
-                    
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
+                }
             }
-#endif
         }
     }
 }
