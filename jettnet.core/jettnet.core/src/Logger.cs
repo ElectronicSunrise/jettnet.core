@@ -53,13 +53,22 @@ namespace jettnet.core
             switch (logLevel)
             {
                 case LogLevel.Info:
-                    _info?.Invoke(message);
+                    
+                    lock (_info)
+                        _info?.Invoke(message);
+                    
                     break;
                 case LogLevel.Warning:
-                    _warning?.Invoke(message);
+                    
+                    lock (_warning)
+                        _warning?.Invoke(message);
+                    
                     break;
                 case LogLevel.Error:
-                    _error?.Invoke(message);
+                    
+                    lock (_error)
+                        _error?.Invoke(message);
+                    
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
