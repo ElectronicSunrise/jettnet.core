@@ -15,7 +15,9 @@ namespace jettnet.core.tests
         [Fact]
         public unsafe void WriteReturnNullIfFull()
         {
-            NativeRingBuffer nativeRingBuffer = new NativeRingBuffer(10, 5);
+            Logger logger = new Logger("TEST");
+
+            NativeRingBuffer nativeRingBuffer = new NativeRingBuffer(10, 5, logger);
 
             bool isNull;
             isNull = nativeRingBuffer.Reserve() == null;
@@ -36,7 +38,9 @@ namespace jettnet.core.tests
         [Fact]
         public unsafe void ReadReturnNullIfEmpty()
         {
-            NativeRingBuffer nativeRingBuffer = new NativeRingBuffer(10, 5);
+            Logger logger = new Logger("TEST");
+
+            NativeRingBuffer nativeRingBuffer = new NativeRingBuffer(10, 5, logger);
 
             bool isNull;
             isNull = nativeRingBuffer.Reserve() == null;
