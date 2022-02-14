@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace jettnet.core
 {
@@ -53,6 +54,12 @@ namespace jettnet.core
                         throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
                 }
             }
+        }
+
+        [Conditional("DEBUG")]
+        public void LogDebug(object msg, LogLevel logLevel = LogLevel.Info) 
+        {
+            Log(msg, logLevel);
         }
     }
 }
