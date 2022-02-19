@@ -26,6 +26,8 @@ namespace jettnet.core
 
         private int _lockContentionCount = 0;
 
+        private volatile bool _isWriting = false;
+
         public NativeRingBuffer(int elementSize, int elementCount, Logger logger) 
         {
             // If compiled in debug mode thread tracking is enabled, otherwise disabled
@@ -65,8 +67,9 @@ namespace jettnet.core
                     nextElement = _buffer;
                 }
 
-                // Check if the buffer is full
-                if (nextElement == _readPointer) 
+                // Check if the buffer is full, we dont know if the last read element is done processing,
+                // so we wait for one more element to be read before overwriting the current read element
+                if (nextElement == (byte*) _readPointer - _elementSize)
                 {
                     return null;
                 }
@@ -74,6 +77,7 @@ namespace jettnet.core
                 writePosition = _writePointer;
 
                 // Advance write pointer
+                _isWriting = true;
                 _writePointer = nextElement;
             } 
             finally 
@@ -85,6 +89,11 @@ namespace jettnet.core
             }
 
             return writePosition;
+        }
+
+        public void FinishWriting()
+        {
+            _isWriting = false;
         }
 
         /// <summary>
@@ -108,8 +117,8 @@ namespace jettnet.core
                     nextElement = _buffer;
                 }
 
-                // Check if the buffer is empty, checks if the next element is the write pointer
-                if (nextElement == _writePointer) 
+                // if the next element is the write pointer we read everything, if next element is write pointer - 1 and its still writing we wait until its done writing
+                if (nextElement == _writePointer || (nextElement == (byte*)_writePointer - _elementSize && _isWriting)) 
                 {
                     return null;
                 }
